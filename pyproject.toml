@@ -1,0 +1,13 @@
+[project]
+name = "LLM Telegram Bot"
+version = "0.1.0"
+description = "Telegram bot powered by a locally deployed LLM (Qwen2.5:1.5b) via Ollama, wrapped in a FastAPI gateway."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv.workspace]
+members = [
+    "bot",
+    "gateway",
+ ]
