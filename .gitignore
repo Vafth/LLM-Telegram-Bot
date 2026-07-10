@@ -7,7 +7,6 @@ wheels/
 
 .venv
 .env
-.env.test
 
 # Coverage
 .coverage
