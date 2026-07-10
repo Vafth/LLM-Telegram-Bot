@@ -19,4 +19,4 @@ spec:
             - containerPort: {{ .Values.gateway.port }}
           envFrom:
             - secretRef:
-              name: bot-secret
+                name: bot-secret

@@ -17,4 +17,4 @@ spec:
           image: "{{ .Values.bot.image.repository }}:{{ .Values.bot.image.tag }}"
           envFrom:
             - secretRef:
-              name: bot-secret
+                name: bot-secret
