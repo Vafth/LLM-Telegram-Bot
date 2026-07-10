@@ -1,0 +1,10 @@
+gateway:
+  image:
+    repository: ghcr.io/vafth/llm-telegram-bot-gateway
+    tag: "latest"  # CI_GATEWAY_TAG
+  port: 8000
+
+bot:
+  image:
+    repository: ghcr.io/vafth/llm-telegram-bot-bot
+    tag: "latest"  # CI_BOT_TAG
