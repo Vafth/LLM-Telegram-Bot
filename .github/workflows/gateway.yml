@@ -31,7 +31,7 @@ jobs:
         run: uv sync --package gateway --package LLM-Telegram-Bot --group dev
 
       - name: Create test env file
-        run: cp .env.test .env.test
+        run: cp .env.test.example .env.test
 
       - name: Run tests
         run: uv run pytest gateway/tests -v

@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 async def ask_gateway_success(mock_client):
     mock_response = MagicMock()
     mock_response.json.return_value = {"reply": "Hello there!"}
-    mock_response.raise_for_status = MagicMock()
+    mock_response.raise_for_status  = MagicMock()
     mock_client.return_value.__aenter__.return_value.post = AsyncMock(
         return_value=mock_response
     )
