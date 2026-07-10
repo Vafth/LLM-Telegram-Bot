@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     GATEWAY_URL: str = "http://gateway:8080"
     
     class Config:
-        env_file = ".env"
+        env_file = ".env",
+        extra="ignore"
 
 settings = Settings()

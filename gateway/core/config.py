@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     OLLAMA_MODEL: str = "qwen2.5:1.5b"
     
     class Config:
-        env_file = ".env"  # tylko dla lokalnego uruchomienia bez Docker
-
+        env_file = ".env",
+        extra="ignore"
+        
 settings = Settings()
