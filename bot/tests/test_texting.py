@@ -39,8 +39,8 @@ async def test_handle_text_error(mock_ask):
     from aiogram.fsm.storage.base import StorageKey
 
     storage = MemoryStorage()
-    key = StorageKey(bot_id=1, chat_id=123, user_id=1)
-    state = FSMContext(storage=storage, key=key)
+    key     = StorageKey(bot_id=1, chat_id=123, user_id=1)
+    state   = FSMContext(storage=storage, key=key)
 
     from handlers.texting import handle_text
     message = make_message("Hello")
