@@ -16,11 +16,17 @@ Telegram → Bot (aiogram) → Gateway (FastAPI) → Ollama (Qwen2.5:1.5b)
 
 ## CI/CD Pipeline
 
+### GitHub Actions (primary)
 git push → GitHub Actions (test + build + push to ghcr.io)
 ↓
 ArgoCD detects change in helm/values.yaml
 ↓
 Auto-sync to Kubernetes cluster
+
+### Jenkins (alternative, local)
+Self-hosted Jenkins pipeline with Docker agent for test isolation.
+Runs tests and builds Docker images locally.
+Jenkinsfile included in repository root.
 
 ## Stack
 Python, FastAPI, aiogram, Ollama, Docker Compose, Kubernetes (Minikube),
