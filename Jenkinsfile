@@ -9,6 +9,12 @@ pipeline {
         }
 
         stage('Test') {
+            agent {
+                docker {
+                    image 'python:3.11-slim'
+                    reuseNode true
+                }
+            }
             steps {
                 sh '''
                     pip install uv
