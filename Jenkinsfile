@@ -8,6 +8,7 @@ pipeline {
             }
         }
 
+
         stage('Test') {
             agent {
                 docker {
@@ -18,8 +19,13 @@ pipeline {
             steps {
                 sh '''
                     pip install uv
-                    uv sync --package bot --package gateway --package LLM-Telegram-Bot --group dev
-                    uv run pytest bot/tests gateway/tests -v
+                    cp .env.test.example .env.test
+
+                    uv sync --package bot --package LLM-Telegram-Bot --group dev
+                    uv run pytest bot/tests -v
+
+                    uv sync --package gateway --package LLM-Telegram-Bot --group dev
+                    uv run pytest gateway/tests -v
                 '''
             }
         }
@@ -42,8 +48,7 @@ pipeline {
             echo 'Pipeline succeeded!'
         }
         failure {
-            echo 'Pipeline failed'
+            echo 'Pipeline failed!'
         }
     }
-
 }
