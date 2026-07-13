@@ -10,6 +10,8 @@ wheels/
 .env.test
 .env.k8s
 
+terraform.tfvars
+
 # Coverage
 .coverage
 .coverage.*

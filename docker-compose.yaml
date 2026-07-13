@@ -1,4 +1,19 @@
 services:
+
+  vllm:
+      image: vllm/vllm-openai:latest
+      command: --model Qwen/Qwen2.5-0.5B --device cpu
+      ports:
+        - "8001:8000"
+      volumes:
+        - vllm_data:/root/.cache/huggingface
+      healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+        start_period: 120s
+   
   ollama:
     image: ollama/ollama
     ports:
@@ -43,3 +58,4 @@ services:
 
 volumes:
   ollama_data:
+  vllm_data:
