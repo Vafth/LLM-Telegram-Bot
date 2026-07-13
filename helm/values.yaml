@@ -1,10 +1,10 @@
 gateway:
   image:
-    repository: ghcr.io/vafth/llm-telegram-bot-gateway
+    repository: ghcr.io/vafth/llm-telegram-bot-gateway # CI_GATEWAY_REPO
     tag: "b1e30c3cf3b303a1b2942898ee92fa1cd76970bf"  # CI_GATEWAY_TAG
   port: 8000
 
 bot:
   image:
-    repository: ghcr.io/vafth/llm-telegram-bot-bot
+    repository: ghcr.io/vafth/llm-telegram-bot-bot # CI_BOT_REPO
     tag: "b1e30c3cf3b303a1b2942898ee92fa1cd76970bf"  # CI_BOT_TAG
