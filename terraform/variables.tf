@@ -9,7 +9,7 @@ variable "ollama_model" {
 }
 
 variable "ollama_url" {
-  description = "URL to ollama service"
+  description = "URL to external ollama service"
   default = "http://host.minikube.internal:11434"
 }
 
