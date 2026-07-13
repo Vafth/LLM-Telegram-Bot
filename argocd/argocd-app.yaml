@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: llm-telegram-bot
+  namespace: argocd
+spec:
+  destination:
+    namespace: llm-bot
+    server: https://kubernetes.default.svc
+  source:
+    path: ./helm/
+    repoURL: https://github.com/Vafth/LLM-Telegram-Bot.git
+    targetRevision: main
+    helm:
+      valueFiles:
+        - values.yaml
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
