@@ -1,0 +1,5 @@
+telegram_token = "your_telegram_bot_token"
+ollama_url     = "http://host.minikube.internal:11434"
+ollama_model   = "qwen2.5:1.5b"
+gateway_url    = "http://gateway:8000"
+llm_provider   = "ollama"
