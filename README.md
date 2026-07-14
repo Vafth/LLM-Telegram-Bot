@@ -1,109 +1,326 @@
-# LLM Telegram Bot — Local Ollama Infrastructure
+# LLM Telegram Bot — AI Platform Demo
 
-Telegram bot powered by a locally deployed LLM (Qwen2.5:1.5b) via Ollama,
-wrapped in a FastAPI gateway. Full conversation history per chat session.
+A production-style AI application demonstrating how to deploy and maintain a local Large Language Model (LLM) service using modern DevOps and GitOps practices.
 
-## Architecture
+The project combines a Telegram bot, FastAPI gateway, Kubernetes, Terraform, Helm, ArgoCD, Jenkins and GitHub Actions into a complete AI platform deployment workflow.
 
-Telegram → Bot (aiogram) → Gateway (FastAPI) → Ollama (Qwen2.5:1.5b)
+## Features
 
-### Services
-- **Bot** — Telegram bot built with aiogram, maintains per-session conversation
-  history using FSM storage
-- **Gateway** — FastAPI service responsible for communication between the bot
-  and Ollama REST API
-- **Ollama** — Local LLM inference server serving Qwen2.5:1.5b on CPU
+- 🤖 Telegram bot powered by a local Ollama model (Qwen2.5:1.5B)
+- 💬 Per-user conversation history
+- 🚪 FastAPI gateway separating AI inference from the client
+- 🐳 Containerized microservice architecture
+- ☸️ Kubernetes deployment using Helm
+- ⚙️ Infrastructure provisioning with Terraform
+- 🚀 GitOps Continuous Delivery with ArgoCD
+- 🔄 CI pipelines using both GitHub Actions and Jenkins
+- 🔐 Kubernetes Secret management through Terraform
 
-## CI/CD Pipeline
+---
 
-### GitHub Actions (primary)
-git push to main
-↓
-GitHub Actions: build + push images to ghcr.io
-↓
-Update image tags in helm/values.yaml
-↓
-ArgoCD detects change → auto-sync to Kubernetes
+# Architecture
 
-### Jenkins (alternative, local)
-Self-hosted Jenkins pipeline with Docker agent for test isolation.
-Runs tests, builds and pushes Docker images, updates helm/values.yaml.
-Jenkinsfile included in repository root.
-
-Requirements: Jenkins agent must have Docker and Git installed.
-
-## Stack
-Python, FastAPI, aiogram, Ollama, Docker Compose, Kubernetes (Minikube),
-Helm, ArgoCD, GitHub Actions, Jenkins, Terraform, ghcr.io
-
-## Prerequisites
-- Docker & Docker Compose
-- Minikube
-- Helm
-- ArgoCD installed on Minikube
-- Terraform
-- Telegram Bot Token (from @BotFather)
-
-## Local Development (Docker Compose)
-
-1. Copy `.env.example` to `.env` and fill in your `TOKEN`
-2. Run:
-```bash
-docker-compose up ollama model-puller gateway bot
+```
+                               GitHub
+                                  │
+                    ┌─────────────┴─────────────┐
+                    │                           │
+             GitHub Actions                Jenkins
+                    │                           │
+                    └─────────────┬─────────────┘
+                                  │
+                     Docker Registry
+                 (GHCR or Docker Hub)
+                                  │
+                          Helm values.yaml
+                                  │
+                               ArgoCD
+                                  │
+                           Kubernetes
+                           (Minikube)
+                                  │
+              ┌───────────────────┴───────────────────┐
+              │                                       │
+        Telegram Bot                          FastAPI Gateway
+                                                      │
+                                                 Ollama Server
+                                                      │
+                                                 Qwen2.5:1.5B
 ```
 
-> `vllm` service is excluded — start it manually only if needed.
+---
 
-## Kubernetes Deployment (Helm + ArgoCD + Terraform)
+# Technology Stack
 
-### 1. Start Minikube
+## AI
+
+- Ollama
+- Qwen2.5:1.5B
+- FastAPI
+
+## DevOps
+
+- Docker
+- Docker Compose
+- Kubernetes (Minikube)
+- Helm
+- Terraform
+- ArgoCD
+- GitHub Actions
+- Jenkins
+
+## Programming
+
+- Python
+- Bash
+
+---
+
+# Running the Project
+
+## Option 1 — Local Development (Docker Compose)
+
+### Prerequisites
+
+- Docker
+- Docker Compose
+- Telegram Bot Token
+
+### Configure environment
+
+Copy:
+
+```bash
+cp .env.example .env
+```
+
+Fill in your Telegram Bot Token.
+
+### Start services
+
+```bash
+docker compose up ollama model-puller gateway bot
+```
+
+The bot will now communicate with the local Ollama instance.
+
+---
+
+## Option 2 — Kubernetes Deployment
+
+### Requirements
+
+- Minikube
+- kubectl
+- Helm
+- Terraform
+- ArgoCD
+
+---
+
+### Start Minikube
+
 ```bash
 minikube start
 ```
 
-### 2. Install ArgoCD
+---
+
+### Install ArgoCD
+
 ```bash
 kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+kubectl apply \
+-n argocd \
+-f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
 
-### 3. Start Ollama locally
+Expose the UI:
+
 ```bash
-docker-compose up -d ollama model-puller
+kubectl port-forward svc/argocd-server \
+-n argocd \
+8888:443
 ```
 
-### 4. Apply Terraform (namespace + secrets)
-Copy `terraform/terraform.tfvars.example` to `terraform/terraform.tfvars` and fill in your values:
+---
+
+### Start Ollama
+
+Only Ollama remains outside the cluster.
+
+```bash
+docker compose up -d ollama model-puller
+```
+
+---
+
+### Provision Infrastructure
+
+Copy the example configuration:
+
+```bash
+cp terraform/terraform.tfvars.example terraform/terraform.tfvars
+```
+
+Configure:
+
 ```hcl
-telegram_token = "your_telegram_bot_token"
+telegram_token = "<YOUR_TOKEN>"
 ollama_model   = "qwen2.5:1.5b"
 ```
 
+Deploy infrastructure:
+
 ```bash
 cd terraform
+
 terraform init
 terraform apply
 ```
 
-This creates the `llm-bot` namespace and `bot-secret` Kubernetes secret automatically.
+Terraform automatically creates:
 
-### 5. Deploy via ArgoCD
+- Kubernetes namespace
+- Kubernetes Secret containing application configuration
+
+---
+
+### Deploy the application
+
 ```bash
-kubectl apply -f argocd/argocd-app.yaml -n argocd
+kubectl apply \
+-f argocd/argocd-app.yaml \
+-n argocd
 ```
 
-ArgoCD will auto-sync on every push to main.
+ArgoCD will synchronize the application automatically.
 
-## Testing
+---
+
+# CI/CD
+
+This repository supports two independent deployment pipelines.
+
+---
+
+## GitHub Actions (Primary)
+
+```
+git push
+    │
+    ▼
+Run Tests
+    │
+    ▼
+Build Docker Images
+    │
+    ▼
+Push Images to GHCR
+    │
+    ▼
+Update Helm values.yaml
+    │
+    ▼
+Commit Changes
+    │
+    ▼
+ArgoCD detects repository change
+    │
+    ▼
+Automatic Kubernetes rollout
+```
+
+---
+
+## Jenkins (Alternative Local Pipeline)
+
+```
+git push
+    │
+    ▼
+Checkout Repository
+    │
+    ▼
+Run Tests
+    │
+    ▼
+Build Docker Images
+    │
+    ▼
+Push Images to Docker Hub
+    │
+    ▼
+Update Helm values.yaml
+    │
+    ▼
+Commit & Push Changes
+    │
+    ▼
+ArgoCD Sync
+    │
+    ▼
+Automatic Kubernetes rollout
+```
+
+---
+
+# Infrastructure
+
+Terraform manages:
+
+- Kubernetes Namespace
+- Kubernetes Secrets
+
+Helm manages:
+
+- Deployments
+- Services
+- Container configuration
+- Image versions
+
+ArgoCD continuously synchronizes the cluster with the Git repository.
+
+---
+
+# Testing
+
+Run tests:
+
 ```bash
+# Bot
 uv sync --package bot --package LLM-Telegram-Bot --group dev
 uv run pytest bot/tests -v
 
+# Gateway
 uv sync --package gateway --package LLM-Telegram-Bot --group dev
 uv run pytest gateway/tests -v
 ```
 
-## Commands
-- Any text → LLM response with conversation context
-- `/clear` → Clear conversation history
+---
+
+# Bot Commands
+
+| Command | Description |
+|----------|-------------|
+| Any text | Sends the message to the LLM |
+| `/clear` | Clears conversation history |
+
+---
+
+# What this project demonstrates
+
+This project was built to demonstrate practical AI Platform and DevOps engineering skills, including:
+
+- Local LLM deployment with Ollama
+- Containerized microservices
+- Kubernetes application deployment
+- Helm package management
+- Infrastructure as Code with Terraform
+- GitOps Continuous Delivery using ArgoCD
+- CI pipelines with GitHub Actions and Jenkins
+- Kubernetes Secret management
+- Docker image publishing to GHCR and Docker Hub
+
+It reflects a simplified AI platform similar to those used for deploying internal AI services in enterprise environments.
