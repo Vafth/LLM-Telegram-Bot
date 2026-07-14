@@ -306,21 +306,3 @@ uv run pytest gateway/tests -v
 |----------|-------------|
 | Any text | Sends the message to the LLM |
 | `/clear` | Clears conversation history |
-
----
-
-# What this project demonstrates
-
-This project was built to demonstrate practical AI Platform and DevOps engineering skills, including:
-
-- Local LLM deployment with Ollama
-- Containerized microservices
-- Kubernetes application deployment
-- Helm package management
-- Infrastructure as Code with Terraform
-- GitOps Continuous Delivery using ArgoCD
-- CI pipelines with GitHub Actions and Jenkins
-- Kubernetes Secret management
-- Docker image publishing to GHCR and Docker Hub
-
-It reflects a simplified AI platform similar to those used for deploying internal AI services in enterprise environments.
