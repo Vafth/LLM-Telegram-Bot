@@ -54,7 +54,10 @@ jobs:
 
       - name: Update image tags in helm/values.yaml
         run: |
+          sed -i "s|repository:.*# CI_GATEWAY_REPO|repository: ghcr.io/${{ env.OWNER }}/llm-telegram-bot-gateway  # CI_GATEWAY_REPO|" helm/values.yaml
           sed -i "s|tag:.*# CI_GATEWAY_TAG|tag: \"${{ github.sha }}\"  # CI_GATEWAY_TAG|" helm/values.yaml
+
+          sed -i "s|repository:.*# CI_BOT_REPO|repository: ghcr.io/${{ env.OWNER }}/llm-telegram-bot-bot  # CI_BOT_REPO|" helm/values.yaml
           sed -i "s|tag:.*# CI_BOT_TAG|tag: \"${{ github.sha }}\"  # CI_BOT_TAG|" helm/values.yaml
 
       - name: Commit updated values.yaml
