@@ -17,26 +17,31 @@ Telegram → Bot (aiogram) → Gateway (FastAPI) → Ollama (Qwen2.5:1.5b)
 ## CI/CD Pipeline
 
 ### GitHub Actions (primary)
-git push → GitHub Actions (test + build + push to ghcr.io)
+git push to main
 ↓
-ArgoCD detects change in helm/values.yaml
+GitHub Actions: build + push images to ghcr.io
 ↓
-Auto-sync to Kubernetes cluster
+Update image tags in helm/values.yaml
+↓
+ArgoCD detects change → auto-sync to Kubernetes
 
 ### Jenkins (alternative, local)
 Self-hosted Jenkins pipeline with Docker agent for test isolation.
-Runs tests and builds Docker images locally.
+Runs tests, builds and pushes Docker images, updates helm/values.yaml.
 Jenkinsfile included in repository root.
+
+Requirements: Jenkins agent must have Docker and Git installed.
 
 ## Stack
 Python, FastAPI, aiogram, Ollama, Docker Compose, Kubernetes (Minikube),
-Helm, ArgoCD, GitHub Actions, ghcr.io
+Helm, ArgoCD, GitHub Actions, Jenkins, Terraform, ghcr.io
 
 ## Prerequisites
 - Docker & Docker Compose
 - Minikube
 - Helm
 - ArgoCD installed on Minikube
+- Terraform
 - Telegram Bot Token (from @BotFather)
 
 ## Local Development (Docker Compose)
@@ -44,10 +49,12 @@ Helm, ArgoCD, GitHub Actions, ghcr.io
 1. Copy `.env.example` to `.env` and fill in your `TOKEN`
 2. Run:
 ```bash
-docker-compose up --build
+docker-compose up ollama model-puller gateway bot
 ```
 
-## Kubernetes Deployment (Helm + ArgoCD)
+> `vllm` service is excluded — start it manually only if needed.
+
+## Kubernetes Deployment (Helm + ArgoCD + Terraform)
 
 ### 1. Start Minikube
 ```bash
@@ -61,41 +68,40 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/st
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 ```
 
-### 3. Create Kubernetes Secret
-Create `.env.k8s` based on `.env.example` with Kubernetes-specific values:
-```env
-TOKEN=your_telegram_bot_token
-GATEWAY_URL=http://gateway:8000
-OLLAMA_URL=http://host.minikube.internal:11434
-OLLAMA_MODEL=qwen2.5:1.5b
-```
-
-```bash
-kubectl create secret generic bot-secret --from-env-file=.env.k8s
-```
-
-### 4. Start Ollama locally
+### 3. Start Ollama locally
 ```bash
 docker-compose up -d ollama model-puller
 ```
 
-### 5. Create ArgoCD Application
-Connect your GitHub repo in ArgoCD and create Application pointing to `helm/`
-directory with `values.yaml`.
-
-### 6. ArgoCD auto-syncs on every push to main
-
-## Secrets Management
-
-For local development, secrets are loaded from `.env` via Docker Compose.
-For Kubernetes, secrets are created manually from `.env.k8s`:
-```bash
-kubectl create secret generic bot-secret --from-env-file=.env.k8s
+### 4. Apply Terraform (namespace + secrets)
+Copy `terraform/terraform.tfvars.example` to `terraform/terraform.tfvars` and fill in your values:
+```hcl
+telegram_token = "your_telegram_bot_token"
+ollama_model   = "qwen2.5:1.5b"
 ```
+
+```bash
+cd terraform
+terraform init
+terraform apply
+```
+
+This creates the `llm-bot` namespace and `bot-secret` Kubernetes secret automatically.
+
+### 5. Deploy via ArgoCD
+```bash
+kubectl apply -f argocd/argocd-app.yaml -n argocd
+```
+
+ArgoCD will auto-sync on every push to main.
 
 ## Testing
 ```bash
-uv run pytest
+uv sync --package bot --package LLM-Telegram-Bot --group dev
+uv run pytest bot/tests -v
+
+uv sync --package gateway --package LLM-Telegram-Bot --group dev
+uv run pytest gateway/tests -v
 ```
 
 ## Commands
