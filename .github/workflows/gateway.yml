@@ -1,11 +1,13 @@
 name: Gateway CI
 
 on:
-  workflow_dispatch :
+  push :
+    branches: [dev]
     paths:
       - 'gateway/**'
       - '.github/workflows/gateway.yml'
   pull_request:
+    branches: [dev]
     paths:
       - 'gateway/**'
 

@@ -9,7 +9,6 @@ on:
       - '.github/workflows/ci.yml'
 
 env:
-  REGISRTY: ghcr.io
   GATEWAY_IMAGE: ghcr.io/${{ github.repository_owner }}/llm-telegram-bot-gateway
   BOT_IMAGE: ghcr.io/${{ github.repository_owner }}/llm-telegram-bot-bot 
 
@@ -55,8 +54,8 @@ jobs:
 
       - name: Update image tags in helm/values.yaml
         run: |
-          sed -i "s|tag: \"latest\".*# CI_GATEWAY_TAG|tag: \"${{ github.sha }}\"  # CI_GATEWAY_TAG|" helm/values.yaml
-          sed -i "s|tag: \"latest\".*# CI_BOT_TAG|tag: \"${{ github.sha }}\"  # CI_BOT_TAG|" helm/values.yaml
+          sed -i "s|tag:.*# CI_GATEWAY_TAG|tag: \"${{ github.sha }}\"  # CI_GATEWAY_TAG|" helm/values.yaml
+          sed -i "s|tag:.*# CI_BOT_TAG|tag: \"${{ github.sha }}\"  # CI_BOT_TAG|" helm/values.yaml
 
       - name: Commit updated values.yaml
         run: |
