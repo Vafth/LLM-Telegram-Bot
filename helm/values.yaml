@@ -1,10 +1,10 @@
 gateway:
   image:
     repository: harhatilatonttu/llm-telegram-bot-gateway # CI_GATEWAY_REPO
-    tag: "15"  # CI_GATEWAY_TAG
+    tag: "4c6562e963cbc163cf046e98d06843934e398790"  # CI_GATEWAY_TAG
   port: 8000
 
 bot:
   image:
     repository: harhatilatonttu/llm-telegram-bot-bot # CI_BOT_REPO
-    tag: "15"  # CI_BOT_TAG
+    tag: "4c6562e963cbc163cf046e98d06843934e398790"  # CI_BOT_TAG
